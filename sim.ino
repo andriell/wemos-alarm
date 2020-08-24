@@ -21,6 +21,10 @@ void simLoop() {
     simSerial->print(const_str_nr);
   }
 
+  if (cmd.startsWith(const_str_sms)) {
+    simSendSms(cmd.substring(3));
+  }
+  // Читаем ответ модуля
   int i = 0;
   while (simSerial->available()) {
     simCmdChr[i++] = simSerial->read();
@@ -36,6 +40,17 @@ void simLoop() {
   } else {
     simRespStr = const_str_empty;
   }
+}
+
+void simSendSms(String sms) {
+  simSerial->print("AT+CMGF=1");
+  simSerial->print(const_str_nr);
+  simSerial->print("AT+CMGS=\"");
+  simSerial->print(configSimPhone);
+  simSerial->print("\"");
+  simSerial->print(const_str_nr);
+  simSerial->print(sms);
+  simSerial->write(26);
 }
 
 String simResp() {
