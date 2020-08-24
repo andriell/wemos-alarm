@@ -1,4 +1,4 @@
-#define SIM_LEN 64
+#define SIM_LEN 512
 char simCmdChr[SIM_LEN];
 String simRespStr = const_str_empty;
 
@@ -9,6 +9,19 @@ void simSetup() {
   ss->begin(9600);
   ss->enableIntTx(false);
   simSerial = ss;
+
+  // ЭХО: 1 – вкл (по умолчанию); 0 – выкл
+  simSerial->print("ATE1");
+  simSerial->print(const_str_nr);
+  delay(50);
+  // Формат ответа модуля: 0 – только ответ; 1 – полный ответ с ЭХО (по умолчанию)
+  simSerial->print("ATV1");
+  simSerial->print(const_str_nr);
+  delay(50);
+  // Информация об ошибках: 0 – отключён (по умолчанию); 1 – код ошибки; 2 – описание ошибки
+  simSerial->print("AT+CMEE=0");
+  simSerial->print(const_str_nr);
+  delay(50);
 }
 
 void simLoop() {
@@ -45,10 +58,12 @@ void simLoop() {
 void simSendSms(String sms) {
   simSerial->print("AT+CMGF=1");
   simSerial->print(const_str_nr);
+  delay(50);
   simSerial->print("AT+CMGS=\"");
   simSerial->print(configSimPhone);
   simSerial->print("\"");
   simSerial->print(const_str_nr);
+  delay(50);
   simSerial->print(sms);
   simSerial->write(26);
 }
